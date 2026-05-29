@@ -21,7 +21,14 @@ Generate a production-ready Azure DevOps YAML pipeline definition that executes 
       type: string
       default: {{agent_pool}}
   ```
+- The `default:` value for `agentPool` **must** be set to the literal placeholder token `{{agent_pool}}` exactly as it appears above — the template engine will substitute the caller-supplied value at generation time. **Never replace `{{agent_pool}}` with any hardcoded string literal** (such as `test`, `Default`, `ubuntu-latest`, or any other pool name) anywhere in the YAML, including the `default:` field. If the placeholder has not been resolved by the caller, leave it as `{{agent_pool}}`; do not invent or assume a pool name.
 - The agent pool for **every job** in the pipeline **must** be set using `name: ${{ parameters.agentPool }}` under the `pool:` key. Do **not** hardcode any pool name string (such as `test`, `Default`, or any other literal) anywhere in the YAML. The `{{agent_pool}}` input value must flow through this parameter and be referenced exclusively as `${{ parameters.agentPool }}`.
+- To be unambiguous: the only acceptable form of the `pool:` block for any job is:
+  ```
+  pool:
+    name: ${{ parameters.agentPool }}
+  ```
+  Any other form — including `pool: test`, `pool: Default`, `name: test`, or any literal string — is a violation and must not appear anywhere in the generated YAML.
 
 ### Variables
 - Define pipeline-level variables for:
@@ -72,6 +79,14 @@ Generate a production-ready Azure DevOps YAML pipeline definition that executes 
 
 ### Notifications
 - Add a pipeline-level `name` using the format: `$(Date:yyyyMMdd).$(Rev:r)-dev-terraform-pipeline`.
+
+## Critical Pool Name Constraint — Final Reminder
+Before producing the final YAML, verify every occurrence of `pool:` in the output. Each must match exactly:
+```
+pool:
+  name: ${{ parameters.agentPool }}
+```
+If any `pool:` block contains a literal string value — regardless of what that string is — the output is invalid. The `default:` value in the `parameters:` block must be `{{agent_pool}}` as supplied by the caller, never a hardcoded string. This constraint takes precedence over any assumed convenience default.
 
 ## Output
 Produce a complete, valid `azure-pipelines.yml` file saved to the `newai/outputs` directory. The file must be ready to commit to a repository and run without modification beyond filling in variable group values.
