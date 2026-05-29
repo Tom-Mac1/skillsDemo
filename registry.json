@@ -1,0 +1,12 @@
+{
+  "skills": {
+    "new-new-pipeline": {
+      "versions": [
+        "3.0.0"
+      ],
+      "latest": "3.0.0",
+      "description": "Create an Azure DevOps pipeline that runs Terraform init, fmt, validate, and plan stages for a dev environment.",
+      "artifact_type": "azure-devops"
+    }
+  }
+}
